@@ -9,16 +9,20 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
@@ -49,6 +53,8 @@ class MainActivity : ComponentActivity() {
 
     private var locationUrl: String? = null
 
+    private var audioPlayer = AudioPlayer()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,6 +68,7 @@ class MainActivity : ComponentActivity() {
                     //@todo: write this to file and check if points exist.
                     //val url = ""
                     //getPoints(url);
+
 
                     val locationPermissionRequest = registerForActivityResult(
                         ActivityResultContracts.RequestMultiplePermissions()
@@ -147,12 +154,29 @@ class MainActivity : ComponentActivity() {
 
             Spacer(modifier = Modifier.height(4.dp))
             Text(text="$url")
+            Spacer(modifier = Modifier.height(4.dp))
         }
 
         if (url != "") {
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-            Button(onClick = { /*TODO*/ }) { }
+            Row() {
+                Button(
+                    onClick = { audioPlayer.play(url) }, colors = ButtonDefaults.buttonColors(
+                        Color.Red
+                    ), shape = RoundedCornerShape(20.dp)
+                ) { Text("Play") }
+                Button(
+                    onClick = { audioPlayer.pause() }, colors = ButtonDefaults.buttonColors(
+                        Color.Red
+                    )
+                ) { Text("Pause") }
+                Button(
+                    onClick = { audioPlayer.stop() }, colors = ButtonDefaults.buttonColors(
+                        Color.Red
+                    ), shape = RoundedCornerShape(50.dp)
+                ) { Text("Stop") }
+            }
         }
     }
 
@@ -160,7 +184,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun PreviewAudioMessage(){
         AIinStreetTheme {
-            AudioMessage(name = "Here lies static", url = "")
+            AudioMessage(name = "Here lies static", url = "hhy")
         }
     }
     fun getPoints(url: String): String {
