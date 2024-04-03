@@ -35,7 +35,6 @@ class Distance {
         val filePath = "data.json" // Replace with your JSON file path
         val file = File(filePath)
         val locationJSON = file.readText()
-        val locationObject = Json.decodeFromString<Locations>(locationJSON)
-        return locationObject
+        return Json.decodeFromString<Locations>(locationJSON)
     }
 }
