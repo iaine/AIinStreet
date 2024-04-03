@@ -108,13 +108,15 @@ class MainActivity : ComponentActivity() {
                     fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
                     fusedLocationClient.lastLocation
                         .addOnSuccessListener { location : Location? ->
-                            // Got last known location. In some rare situations this can be null.
+                            location?: return@addOnSuccessListener
+                            locationText += "- @lat: ${location.latitude}\n" +
+                                    "- @lng: ${location.longitude}\n"
                         }
 
                     locationCallback = object : LocationCallback() {
 
                         override fun onLocationResult(locationResult: LocationResult) {
-                            locationResult ?: return
+
                             locationText = ""
                             for (location in locationResult.locations){
                                 // Update UI with location data
@@ -122,7 +124,7 @@ class MainActivity : ComponentActivity() {
 
                                 /*
                                 * if (long, lat)
-                                * If locatoin matches test
+                                * If location matches test
                                  */
                                 locationText += "- @lat: ${location.latitude}\n" +
                                         "- @lng: ${location.longitude}\n"
@@ -160,7 +162,7 @@ class MainActivity : ComponentActivity() {
         if (url != "") {
             Spacer(modifier = Modifier.height(20.dp))
 
-            Row() {
+            Row {
                 Button(
                     onClick = { audioPlayer.play(url) }, colors = ButtonDefaults.buttonColors(
                         Color.Red
