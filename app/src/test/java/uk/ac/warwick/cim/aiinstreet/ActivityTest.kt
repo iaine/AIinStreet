@@ -13,17 +13,17 @@ class ActivityTest {
 
     @Test
     fun location_nearPoint() {
-        val latitude: Double = 0.00;
-        val longitude: Double = 25.45;
-        val newLocation = Location("newlocation")
-        newLocation.setLatitude(latitude)
-        newLocation.setLongitude(longitude)
+        val latitude = 0.00
+        val longitude = 25.45
+        val newLocation = Location("newLocation")
+        newLocation.latitude = latitude
+        newLocation.longitude = longitude
 
-        val latitude1: Double = 0.00;
-        val longitude1: Double = 25.45;
-        val newLocation1 = Location("newlocation")
-        newLocation1.setLatitude(latitude1)
-        newLocation1.setLongitude(longitude1)
+        val latitude1 = 0.00
+        val longitude1 = 25.45
+        val newLocation1 = Location("newLocation1")
+        newLocation1.latitude = latitude1
+        newLocation1.longitude = longitude1
 
     }
 }
