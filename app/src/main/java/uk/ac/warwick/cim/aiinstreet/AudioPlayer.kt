@@ -5,7 +5,7 @@ import android.media.MediaPlayer
 
 class AudioPlayer {
     private lateinit var mediaPlayer: MediaPlayer
-    fun play(url:String) {
+    fun play(url:String?) {
         val url = "http://........" // your URL here
          mediaPlayer = MediaPlayer().apply {
             setAudioAttributes(
