@@ -128,6 +128,7 @@ class MainActivity : ComponentActivity() {
                                  */
                                 locationText += "- @lat: ${location.latitude}\n" +
                                         "- @lng: ${location.longitude}\n"
+                                playAudio(locationResult)
                             }
                         }
                     }
@@ -205,10 +206,17 @@ class MainActivity : ComponentActivity() {
     }
 
     /**
-     * If close to an audio way point, play audio.
+     * If close to an audio way point, reset the UI variables
      */
     fun playAudio(locationResult: LocationResult) {
-        Distance().distanceTo(locationResult)
+        val location = locationResult.lastLocation
+        val audio = Distance().distanceTo(location)
+
+        if (audio) {
+            val lat = locationResult.lastLocation!!
+            locationText = Distance().locationText (lat.latitude, lat.longitude)
+            locationUrl = Distance().locationAudio(lat.latitude, lat.longitude)
+        }
     }
 
     //start location updates
