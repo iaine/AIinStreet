@@ -109,7 +109,7 @@ class MainActivity : ComponentActivity() {
                     fusedLocationClient.lastLocation
                         .addOnSuccessListener { location : Location? ->
                             location?: return@addOnSuccessListener
-                            locationText += "- @lat: ${location.latitude}\n" +
+                            locationText = "- @lat: ${location.latitude}\n" +
                                     "- @lng: ${location.longitude}\n"
                         }
 
