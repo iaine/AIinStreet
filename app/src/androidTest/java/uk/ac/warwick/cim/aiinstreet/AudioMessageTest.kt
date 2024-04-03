@@ -20,7 +20,7 @@ class AudioMessageTest {
         // Start the app
         composeTestRule.setContent {
             AIinStreetTheme {
-                MainActivity().AudioMessage(name = "test", url = "" )
+                MainActivity().AudioMessage(name = "test", url = "htt" )
             }
         }
 
