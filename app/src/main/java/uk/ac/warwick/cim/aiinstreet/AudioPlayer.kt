@@ -2,12 +2,19 @@ package uk.ac.warwick.cim.aiinstreet
 
 import android.media.AudioAttributes
 import android.media.MediaPlayer
+import android.os.Environment
 
+/**
+ * Simple media player for testing.
+ */
 class AudioPlayer {
     private lateinit var mediaPlayer: MediaPlayer
     fun play(url:String?) {
-        val url = "http://........" // your URL here
-         mediaPlayer = MediaPlayer().apply {
+        //val url = "http://........" // your URL here
+        val url =
+            Environment.getExternalStorageDirectory().toString() + "/" + url
+
+        mediaPlayer = MediaPlayer().apply {
             setAudioAttributes(
                 AudioAttributes.Builder()
                     .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
@@ -21,7 +28,7 @@ class AudioPlayer {
     }
 
     fun stop () {
-        mediaPlayer?.release()
+        mediaPlayer.release()
         //mediaPlayer = null
     }
 
