@@ -2,7 +2,6 @@ package uk.ac.warwick.cim.aiinstreet
 
 import android.media.AudioAttributes
 import android.media.MediaPlayer
-import android.os.Environment
 import android.util.Log
 
 /**
