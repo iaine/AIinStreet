@@ -6,7 +6,7 @@ import java.io.File
 
 class Distance {
 
-    fun distanceTo (location: Location?): Boolean {
+    fun distanceTo (location: Location): Boolean {
         var near = false
 
 
@@ -14,10 +14,11 @@ class Distance {
 
         val latitude = 52.410825
         val longitude = -1.522639
-        val newLocation = Location("newLocation")
+        val newLocation = Location("")
         newLocation.latitude = latitude
         newLocation.longitude = longitude
-        if (location?.distanceTo(newLocation)!! < 2.5) {
+
+        if (location.distanceTo(newLocation) < 2.5) {
             near = true
         }
         return near
