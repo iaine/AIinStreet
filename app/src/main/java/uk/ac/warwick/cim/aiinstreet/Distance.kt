@@ -31,10 +31,10 @@ class Distance {
         return "set text"
     }
 
-    private fun getLocations (): Locations {
+    private fun getLocations (): AudioLocations {
         val filePath = "data.json" // Replace with your JSON file path
         val file = File(filePath)
         val locationJSON = file.readText()
-        return Json.decodeFromString<Locations>(locationJSON)
+        return Json.decodeFromString<AudioLocations>(locationJSON)
     }
 }
