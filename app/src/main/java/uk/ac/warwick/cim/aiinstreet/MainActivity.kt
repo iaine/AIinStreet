@@ -4,7 +4,9 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
+import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -31,8 +33,10 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import uk.ac.warwick.cim.aiinstreet.ui.theme.AIinStreetTheme
 import java.io.BufferedReader
+import java.io.File
 import java.io.InputStreamReader
 import java.net.URL
 
@@ -42,7 +46,35 @@ class MainActivity : ComponentActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     // globally declare LocationRequest
-    private lateinit var locationRequest: LocationRequest
+    //private var locationRequest = LocationRequest()
+    /*private var locationRequest = LocationRequest.create().apply {
+        // Sets the desired interval for active location updates. This interval is inexact. You
+        // may not receive updates at all if no location sources are available, or you may
+        // receive them less frequently than requested. You may also receive updates more
+        // frequently than requested if other applications are requesting location at a more
+        // frequent interval.
+        //
+        // IMPORTANT NOTE: Apps running on Android 8.0 and higher devices (regardless of
+        // targetSdkVersion) may receive updates less frequently than this interval when the app
+        // is no longer in the foreground.
+        interval = TimeUnit.SECONDS.toMillis(5)
+
+        // Sets the fastest rate for active location updates. This interval is exact, and your
+        // application will never receive updates more frequently than this value.
+        fastestInterval = TimeUnit.SECONDS.toMillis(5)
+
+        // Sets the maximum time when batched location updates are delivered. Updates may be
+        // delivered sooner than this interval.
+        maxWaitTime = TimeUnit.MINUTES.toMillis(2)
+
+        priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+    }*/
+    private var locationRequest = LocationRequest.Builder(5000)
+        .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
+        .setIntervalMillis(5000)
+        .setMinUpdateIntervalMillis(2000)
+        .setMaxUpdates(1)
+        .build()
 
     // globally declare LocationCallback
     private lateinit var locationCallback: LocationCallback
@@ -54,6 +86,27 @@ class MainActivity : ComponentActivity() {
     private var locationUrl: String? = null
 
     private var audioPlayer = AudioPlayer()
+
+    private lateinit var baseUrl:String
+
+    private val handler = Handler()
+
+    private lateinit var runnable: Runnable
+
+    private val locationPermissionRequest = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        when {
+            permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
+                // Precise location access granted.
+            }
+            permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
+                // Only approximate location access granted.
+            } else -> {
+            // No location access granted.
+        }
+        }
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,22 +121,10 @@ class MainActivity : ComponentActivity() {
                     //@todo: write this to file and check if points exist.
                     //val url = ""
                     //getPoints(url);
+                    val appDir = File(this.getExternalFilesDir(null), "")
+                    if (!appDir.exists()) { appDir.mkdirs() }
+                    baseUrl = appDir.toString()
 
-
-                    val locationPermissionRequest = registerForActivityResult(
-                        ActivityResultContracts.RequestMultiplePermissions()
-                    ) { permissions ->
-                        when {
-                            permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
-                                // Precise location access granted.
-                            }
-                            permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
-                                // Only approximate location access granted.
-                            } else -> {
-                            // No location access granted.
-                        }
-                        }
-                    }
                     locationPermissionRequest.launch(arrayOf(
                         Manifest.permission.ACCESS_FINE_LOCATION,
                         Manifest.permission.ACCESS_COARSE_LOCATION))
@@ -96,19 +137,19 @@ class MainActivity : ComponentActivity() {
                             Manifest.permission.ACCESS_COARSE_LOCATION
                         ) != PackageManager.PERMISSION_GRANTED
                     ) {
-                        // TODO: Consider calling
-                        //    ActivityCompat#requestPermissions
-                        // here to request the missing permissions, and then overriding
-                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                        //                                          int[] grantResults)
-                        // to handle the case where the user grants the permission. See the documentation
-                        // for ActivityCompat#requestPermissions for more details.
+                        ActivityCompat.requestPermissions(this@MainActivity,
+                            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+                            1)
+
                         requestingLocationUpdates = true
                     }
+
                     fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
                     fusedLocationClient.lastLocation
                         .addOnSuccessListener { location : Location? ->
                             location?: return@addOnSuccessListener
+                            Log.i("LOCAT", location.toString())
                             locationText = "- @lat: ${location.latitude}\n" +
                                     "- @lng: ${location.longitude}\n"
                         }
@@ -116,12 +157,10 @@ class MainActivity : ComponentActivity() {
                     locationCallback = object : LocationCallback() {
 
                         override fun onLocationResult(locationResult: LocationResult) {
-
+                            Log.i("LOCAT", "In results")
                             locationText = ""
                             for (location in locationResult.locations){
-                                // Update UI with location data
-                                // ...
-
+                                Log.i("LOCATI", location.toString())
                                 /*
                                 * if (long, lat)
                                 * If location matches test
@@ -132,6 +171,14 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     }
+
+                    runnable = Runnable {
+                        this.startLocationUpdates()
+                        handler.postDelayed(runnable,5000)
+                    }
+                    //write inside onCreate method
+                    handler.postDelayed(runnable,5000)
+
                     AudioMessage(name = locationText, url = locationUrl)
                 }
             }
@@ -165,7 +212,7 @@ class MainActivity : ComponentActivity() {
 
             Row {
                 Button(
-                    onClick = { audioPlayer.play(url) }, colors = ButtonDefaults.buttonColors(
+                    onClick = { audioPlayer.play("$baseUrl/test.wav") }, colors = ButtonDefaults.buttonColors(
                         Color.Red
                     ), shape = RoundedCornerShape(20.dp)
                 ) { Text("Play") }
@@ -210,7 +257,7 @@ class MainActivity : ComponentActivity() {
      */
     fun playAudio(locationResult: LocationResult) {
         val location = locationResult.lastLocation
-        val audio = Distance().distanceTo(location)
+        val audio = Distance().distanceTo(location!!)
 
         if (audio) {
             val lat = locationResult.lastLocation!!
@@ -229,19 +276,18 @@ class MainActivity : ComponentActivity() {
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
+            ActivityCompat.requestPermissions(this@MainActivity,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+                1)
+
             requestingLocationUpdates = true
             return
         }
-            fusedLocationClient.requestLocationUpdates(locationRequest,
-                locationCallback,
+        Log.i("LOCAT", "In loop")
+        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback,
                 Looper.getMainLooper())
+        Log.i("LOCAT", "Out loop")
+        handler.postDelayed(runnable, 5000)
         }
 
 
