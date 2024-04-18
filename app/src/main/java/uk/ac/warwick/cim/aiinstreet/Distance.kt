@@ -27,7 +27,7 @@ class Distance {
         return near
     }
 
-    fun locationAudio(lat: Double, long: Double, locations:MutableList<AudioLocations>):String {
+    fun locationAudio(lat: Double, long: Double, locations: MutableList<AudioLocations>):String {
         var url = ""
         val filtered = this.findLocations(locations, lat, long)
         if (filtered.size == 1) {
@@ -36,7 +36,7 @@ class Distance {
         return url
     }
 
-    fun locationText (lat: Double, long: Double, locations:MutableList<AudioLocations>): String {
+    fun locationText (lat: Double, long: Double, locations: MutableList<AudioLocations>): String {
         var text = ""
         val filtered = this.findLocations(locations, lat, long)
         if (filtered.size == 1) {
@@ -45,11 +45,11 @@ class Distance {
         return text
     }
 
-    private fun getLocations (): AudioLocations {
+    fun getLocations (): MutableList<AudioLocations> {
         val filePath = "data.json" // Replace with your JSON file path
         val file = File(filePath)
         val locationJSON = file.readText()
-        return Json.decodeFromString<AudioLocations>(locationJSON)
+        return mutableListOf(Json.decodeFromString<AudioLocations>(locationJSON))
     }
 
     fun findLocations (aLocation: MutableList<AudioLocations>, lat: Double, long: Double): List<AudioLocations> {

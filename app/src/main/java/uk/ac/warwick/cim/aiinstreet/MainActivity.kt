@@ -6,6 +6,7 @@ import android.location.Location
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.Vibrator
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -39,6 +40,7 @@ import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
 import java.net.URL
+
 
 class MainActivity : ComponentActivity() {
 
@@ -93,6 +95,8 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var runnable: Runnable
 
+    private lateinit var vibrator: Vibrator
+
     private val locationPermissionRequest = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -121,6 +125,8 @@ class MainActivity : ComponentActivity() {
                     //@todo: write this to file and check if points exist.
                     //val url = ""
                     //getPoints(url);
+                    vibrator = getSystemService(VIBRATOR_SERVICE) as Vibrator
+
                     val appDir = File(this.getExternalFilesDir(null), "")
                     if (!appDir.exists()) { appDir.mkdirs() }
                     baseUrl = appDir.toString()
@@ -157,7 +163,7 @@ class MainActivity : ComponentActivity() {
                     locationCallback = object : LocationCallback() {
 
                         override fun onLocationResult(locationResult: LocationResult) {
-                            Log.i("LOCAT", "In results")
+
                             locationText = ""
                             for (location in locationResult.locations){
                                 Log.i("LOCATI", location.toString())
@@ -167,7 +173,7 @@ class MainActivity : ComponentActivity() {
                                  */
                                 locationText += "- @lat: ${location.latitude}\n" +
                                         "- @lng: ${location.longitude}\n"
-                                playAudio(locationResult)
+                                playAudio(location)
                             }
                         }
                     }
@@ -178,12 +184,30 @@ class MainActivity : ComponentActivity() {
                     }
                     //write inside onCreate method
                     handler.postDelayed(runnable,5000)
-
+                    //changemessafge based on url state?
                     AudioMessage(name = locationText, url = locationUrl)
                 }
             }
         }
     }
+
+    /*@Composable
+    fun NoAudioMessage(){
+        Column {
+            Text(
+                text = "Lost Signal",
+                color = MaterialTheme.colorScheme.secondary
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+        }
+    }
+
+    @Preview
+    @Composable
+    fun PreviewNoAudioMessage() {
+        NoAudioMessage()
+    }*/
 
 
     /**
@@ -194,6 +218,9 @@ class MainActivity : ComponentActivity() {
      */
     @Composable
     fun AudioMessage(name:String?, url:String?){
+
+        Haptic().vibrate(vibrator, 500)
+
         Spacer(modifier = Modifier.width(8.dp))
 
         Column {
@@ -203,38 +230,38 @@ class MainActivity : ComponentActivity() {
             )
 
             Spacer(modifier = Modifier.height(4.dp))
-            Text(text="$url")
-            Spacer(modifier = Modifier.height(4.dp))
+
+            //if (url != null) {
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Row {
+                    Button(
+                        onClick = { audioPlayer.play("$baseUrl/test.wav") }, colors = ButtonDefaults.buttonColors(
+                            Color.Red
+                        ), shape = RoundedCornerShape(20.dp)
+                    ) { Text("Play") }
+                    Button(
+                        onClick = { audioPlayer.pause() }, colors = ButtonDefaults.buttonColors(
+                            Color.Red
+                        )
+                    ) { Text("Pause") }
+                    Button(
+                        onClick = { audioPlayer.stop() }, colors = ButtonDefaults.buttonColors(
+                            Color.Red
+                        ), shape = RoundedCornerShape(50.dp)
+                    ) { Text("Stop") }
+                }
+           // }
         }
 
-        if (url != "") {
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Row {
-                Button(
-                    onClick = { audioPlayer.play("$baseUrl/test.wav") }, colors = ButtonDefaults.buttonColors(
-                        Color.Red
-                    ), shape = RoundedCornerShape(20.dp)
-                ) { Text("Play") }
-                Button(
-                    onClick = { audioPlayer.pause() }, colors = ButtonDefaults.buttonColors(
-                        Color.Red
-                    )
-                ) { Text("Pause") }
-                Button(
-                    onClick = { audioPlayer.stop() }, colors = ButtonDefaults.buttonColors(
-                        Color.Red
-                    ), shape = RoundedCornerShape(50.dp)
-                ) { Text("Stop") }
-            }
-        }
     }
 
     @Preview
     @Composable
     fun PreviewAudioMessage(){
         AIinStreetTheme {
-            AudioMessage(name = "Here lies static", url = "hhy")
+            AudioMessage(name = "Here lies static", url = "")
         }
     }
     fun getPoints(url: String): String {
@@ -255,15 +282,18 @@ class MainActivity : ComponentActivity() {
     /**
      * If close to an audio way point, reset the UI variables
      */
-    fun playAudio(locationResult: LocationResult) {
-        val location = locationResult.lastLocation
-        val audio = Distance().distanceTo(location!!)
 
+    fun playAudio(locationResult: Location) {
+        val dist = Distance()
+        val audio = Distance().distanceTo(locationResult!!)
+
+        val allLocations = dist.getLocations()
         if (audio) {
-            val lat = locationResult.lastLocation!!
-            locationText = Distance().locationText (lat.latitude, lat.longitude)
-            locationUrl = Distance().locationAudio(lat.latitude, lat.longitude)
+            val lat = locationResult!!
+            locationText = dist.locationText (lat.latitude, lat.longitude, allLocations)
+            locationUrl = dist.locationAudio(lat.latitude, lat.longitude, allLocations)
         }
+
     }
 
     //start location updates
