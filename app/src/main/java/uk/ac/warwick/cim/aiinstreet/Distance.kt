@@ -2,8 +2,6 @@ package uk.ac.warwick.cim.aiinstreet
 
 import android.location.Location
 import android.location.LocationManager
-import kotlinx.serialization.json.Json
-import java.io.File
 
 class Distance {
 
@@ -46,10 +44,12 @@ class Distance {
     }
 
     fun getLocations (): MutableList<AudioLocations> {
-        val filePath = "data.json" // Replace with your JSON file path
-        val file = File(filePath)
-        val locationJSON = file.readText()
-        return mutableListOf(Json.decodeFromString<AudioLocations>(locationJSON))
+        val locations: MutableList<AudioLocations> = mutableListOf()
+        locations.add(AudioLocations(52.41033238626815, -1.5210952754423754, "example", "Barras Lane"))
+        locations.add(AudioLocations(52.41108173823987, -1.5231900806341336, "example", "Holyhead Surgery"))
+        locations.add(AudioLocations(52.41186052723431, -1.525158822005133, "example", "Rail Station"))
+        locations.add(AudioLocations(52.41143126082055, -1.5297539855765452, "example", "Rail Station"))
+        return locations
     }
 
     fun findLocations (aLocation: MutableList<AudioLocations>, lat: Double, long: Double): List<AudioLocations> {
