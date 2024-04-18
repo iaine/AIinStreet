@@ -26,7 +26,7 @@ class DistanceTest {
     @Test
     fun testDistanceIsFar() {
         val dist = Distance()
-        var testLocation2 = Location(LocationManager.GPS_PROVIDER)
+        val testLocation2 = Location(LocationManager.GPS_PROVIDER)
         testLocation2.latitude = 53.410
         testLocation2.longitude = -2.522
 
