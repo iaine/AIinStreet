@@ -5,6 +5,8 @@ import android.location.LocationManager
 
 class Distance {
 
+    //@todo refactor this so distance only has the points to save passing object around
+
     fun distanceTo (location: Location): Boolean {
         var near = false
 
