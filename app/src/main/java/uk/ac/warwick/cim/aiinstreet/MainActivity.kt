@@ -97,6 +97,8 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var vibrator: Vibrator
 
+    private lateinit var allLocations: MutableList<AudioLocations>
+
     private val locationPermissionRequest = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -126,6 +128,8 @@ class MainActivity : ComponentActivity() {
                     //val url = ""
                     //getPoints(url);
                     vibrator = getSystemService(VIBRATOR_SERVICE) as Vibrator
+
+                    allLocations = Distance().getLocations()
 
                     val appDir = File(this.getExternalFilesDir(null), "")
                     if (!appDir.exists()) { appDir.mkdirs() }
@@ -287,7 +291,7 @@ class MainActivity : ComponentActivity() {
         val dist = Distance()
         val audio = Distance().distanceTo(locationResult!!)
 
-        val allLocations = dist.getLocations()
+
         if (audio) {
             val lat = locationResult!!
             locationText = dist.locationText (lat.latitude, lat.longitude, allLocations)
