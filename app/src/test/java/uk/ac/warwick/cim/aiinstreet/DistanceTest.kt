@@ -1,10 +1,10 @@
 package uk.ac.warwick.cim.aiinstreet
 
 import android.location.Location
+import android.location.LocationManager
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
@@ -13,23 +13,26 @@ class DistanceTest {
     @Mock
     private lateinit var testLocation1: Location
 
-    @Mock
-    private lateinit var testLocation2: Location
+    //@Mock
+
     @Test
     fun testDistanceIsNear() {
         val dist = Distance()
-        Mockito.`when`(testLocation1.latitude).thenReturn(52.410826)
-        Mockito.`when`(testLocation1.longitude).thenReturn(-1.522640)
+        testLocation1.latitude = 52.410826
+        testLocation1.longitude = -1.522640
         assert(dist.distanceTo(testLocation1))
     }
 
     @Test
     fun testDistanceIsFar() {
         val dist = Distance()
-        Mockito.`when`(testLocation2.latitude).thenReturn(53.410979)
-        Mockito.`when`(testLocation2.longitude).thenReturn(-2.522789)
+        var testLocation2 = Location(LocationManager.GPS_PROVIDER)
+        testLocation2.latitude = 53.410
+        testLocation2.longitude = -2.522
 
-        assert(dist.distanceTo(testLocation2))
+        val d = dist.distanceTo(testLocation2)
+        println(d)
+        assert(!d)
     }
 
     @Test
