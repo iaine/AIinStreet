@@ -2,6 +2,7 @@ package uk.ac.warwick.cim.aiinstreet
 
 import android.location.Location
 import android.location.LocationManager
+import junit.framework.TestCase.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -31,7 +32,6 @@ class DistanceTest {
         testLocation2.longitude = -2.522
 
         val d = dist.distanceTo(testLocation2)
-        println(d)
         assert(!d)
     }
 
@@ -49,5 +49,28 @@ class DistanceTest {
         val lat = 0.00
         val ln = 1.00
         assert(dist.locationAudio(lat, ln) == "http://blag.com")
+    }
+
+    @Test
+    fun testLocationsFindLocation() {
+        val dist = Distance()
+        val locations: MutableList<AudioLocations> = mutableListOf()
+        locations.add(AudioLocations(52.456, -1.234, "exam", "test"))
+        locations.add(AudioLocations(51.987, -1.296, "exam", "test"))
+
+        val foundList = dist.findLocations(locations, 52.456, -1.234)
+        assertEquals(foundList.size, 1)
+        assertEquals(foundList[0].audioUrl, "exam")
+    }
+
+    @Test
+    fun testLocationsNotFindLocation() {
+        val dist = Distance()
+        val locations: MutableList<AudioLocations> = mutableListOf()
+        locations.add(AudioLocations(52.456, -1.234, "exam", "test"))
+        locations.add(AudioLocations(51.987, -1.296, "exam", "test"))
+
+        val foundList = dist.findLocations(locations, 52.45, -1.238)
+        assertEquals(foundList.size, 0)
     }
 }

@@ -26,4 +26,5 @@ class LocationTest {
         val newLocation = AudioLocations(52.456, -1.234, "exam", "test")
         assertEquals(newLocation.audioUrl, "exam")
     }
+    
 }
