@@ -36,22 +36,6 @@ class DistanceTest {
     }
 
     @Test
-    fun testLocationText() {
-        val dist = Distance()
-        val lat = 0.00
-        val ln = 1.00
-        assert(dist.locationText(lat, ln) == "set text")
-    }
-
-    @Test
-    fun testLocationUrl() {
-        val dist = Distance()
-        val lat = 0.00
-        val ln = 1.00
-        assert(dist.locationAudio(lat, ln) == "http://blag.com")
-    }
-
-    @Test
     fun testLocationsFindLocation() {
         val dist = Distance()
         val locations: MutableList<AudioLocations> = mutableListOf()
@@ -72,5 +56,27 @@ class DistanceTest {
 
         val foundList = dist.findLocations(locations, 52.45, -1.238)
         assertEquals(foundList.size, 0)
+    }
+
+    @Test
+    fun testLocationsFindLocationText() {
+        val dist = Distance()
+        val locations: MutableList<AudioLocations> = mutableListOf()
+        locations.add(AudioLocations(52.456, -1.234, "exam", "test"))
+        locations.add(AudioLocations(51.987, -1.296, "exam", "test"))
+
+        val foundList = dist.locationText(52.456, -1.234, locations)
+        assertEquals(foundList, "test")
+    }
+
+    @Test
+    fun testLocationsFindLocationUrl() {
+        val dist = Distance()
+        val locations: MutableList<AudioLocations> = mutableListOf()
+        locations.add(AudioLocations(52.456, -1.234, "exam", "test"))
+        locations.add(AudioLocations(51.987, -1.296, "exam", "test"))
+
+        val foundList = dist.locationText(52.456, -1.234, locations)
+        assertEquals(foundList, "exam")
     }
 }
