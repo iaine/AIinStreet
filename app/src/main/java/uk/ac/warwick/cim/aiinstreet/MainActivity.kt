@@ -1,13 +1,15 @@
 package uk.ac.warwick.cim.aiinstreet
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.Vibrator
-import android.util.Log
+import android.os.VibratorManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -36,10 +38,7 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import uk.ac.warwick.cim.aiinstreet.ui.theme.AIinStreetTheme
-import java.io.BufferedReader
 import java.io.File
-import java.io.InputStreamReader
-import java.net.URL
 
 
 class MainActivity : ComponentActivity() {
@@ -47,30 +46,6 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
-    // globally declare LocationRequest
-    //private var locationRequest = LocationRequest()
-    /*private var locationRequest = LocationRequest.create().apply {
-        // Sets the desired interval for active location updates. This interval is inexact. You
-        // may not receive updates at all if no location sources are available, or you may
-        // receive them less frequently than requested. You may also receive updates more
-        // frequently than requested if other applications are requesting location at a more
-        // frequent interval.
-        //
-        // IMPORTANT NOTE: Apps running on Android 8.0 and higher devices (regardless of
-        // targetSdkVersion) may receive updates less frequently than this interval when the app
-        // is no longer in the foreground.
-        interval = TimeUnit.SECONDS.toMillis(5)
-
-        // Sets the fastest rate for active location updates. This interval is exact, and your
-        // application will never receive updates more frequently than this value.
-        fastestInterval = TimeUnit.SECONDS.toMillis(5)
-
-        // Sets the maximum time when batched location updates are delivered. Updates may be
-        // delivered sooner than this interval.
-        maxWaitTime = TimeUnit.MINUTES.toMillis(2)
-
-        priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-    }*/
     private var locationRequest = LocationRequest.Builder(5000)
         .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
         .setIntervalMillis(5000)
@@ -124,12 +99,18 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    //@todo: write this to file and check if points exist.
-                    //val url = ""
-                    //getPoints(url);
-                    vibrator = getSystemService(VIBRATOR_SERVICE) as Vibrator
-
                     allLocations = Distance().getLocations()
+
+                    vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    val vibratorManager =
+                        getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+                    vibratorManager.defaultVibrator
+                } else {
+                    @Suppress("DEPRECATION")
+                    getSystemService(VIBRATOR_SERVICE) as Vibrator
+                }
+
+
 
                     val appDir = File(this.getExternalFilesDir(null), "")
                     if (!appDir.exists()) { appDir.mkdirs() }
@@ -159,7 +140,7 @@ class MainActivity : ComponentActivity() {
                     fusedLocationClient.lastLocation
                         .addOnSuccessListener { location : Location? ->
                             location?: return@addOnSuccessListener
-                            Log.i("LOCAT", location.toString())
+
                             locationText = "- @lat: ${location.latitude}\n" +
                                     "- @lng: ${location.longitude}\n"
                         }
@@ -170,7 +151,6 @@ class MainActivity : ComponentActivity() {
 
                             locationText = ""
                             for (location in locationResult.locations){
-                                Log.i("LOCATI", location.toString())
                                 /*
                                 * if (long, lat)
                                 * If location matches test
@@ -188,31 +168,12 @@ class MainActivity : ComponentActivity() {
                     }
                     //write inside onCreate method
                     handler.postDelayed(runnable,5000)
-                    //changemessafge based on url state?
+                    //change message based on url state?
                     AudioMessage(name = locationText, url = locationUrl)
                 }
             }
         }
     }
-
-    /*@Composable
-    fun NoAudioMessage(){
-        Column {
-            Text(
-                text = "Lost Signal",
-                color = MaterialTheme.colorScheme.secondary
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-        }
-    }
-
-    @Preview
-    @Composable
-    fun PreviewNoAudioMessage() {
-        NoAudioMessage()
-    }*/
-
 
     /**
      * AudioMessage is a changeable view object.
@@ -268,34 +229,18 @@ class MainActivity : ComponentActivity() {
             AudioMessage(name = "Here lies static", url = "")
         }
     }
-    fun getPoints(url: String): String {
-        val connection = URL(url).openConnection()
-        val reader = BufferedReader(InputStreamReader(connection.getInputStream()))
-        val jsonData = StringBuilder()
 
-        var line: String?
-        while (reader.readLine().also { line = it } != null) {
-            jsonData.append(line)
-        }
-        reader.close()
-
-        //val jsonObject = JSONObject(jsonData)
-        return jsonData.toString()
-    }
 
     /**
      * If close to an audio way point, reset the UI variables
      */
-
     fun playAudio(locationResult: Location) {
         val dist = Distance()
-        val audio = Distance().distanceTo(locationResult!!)
-
+        val audio = Distance().distanceTo(locationResult)
 
         if (audio) {
-            val lat = locationResult!!
-            locationText = dist.locationText (lat.latitude, lat.longitude, allLocations)
-            locationUrl = dist.locationAudio(lat.latitude, lat.longitude, allLocations)
+            locationText = dist.locationText (locationResult.latitude, locationResult.longitude, allLocations)
+            locationUrl = dist.locationAudio(locationResult.latitude, locationResult.longitude, allLocations)
         }
 
     }
@@ -317,10 +262,8 @@ class MainActivity : ComponentActivity() {
             requestingLocationUpdates = true
             return
         }
-        Log.i("LOCAT", "In loop")
         fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback,
                 Looper.getMainLooper())
-        Log.i("LOCAT", "Out loop")
         handler.postDelayed(runnable, 5000)
         }
 
