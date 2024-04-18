@@ -36,6 +36,14 @@ class DistanceTest {
     }
 
     @Test
+    fun testLocationsFindAllPoints() {
+        val dist = Distance()
+        val locations =  dist.getLocations()
+
+        assertEquals(locations.size, 4)
+    }
+
+    @Test
     fun testLocationsFindLocation() {
         val dist = Distance()
         val locations: MutableList<AudioLocations> = mutableListOf()
