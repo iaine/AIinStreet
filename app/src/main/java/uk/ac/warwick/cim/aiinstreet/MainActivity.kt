@@ -72,7 +72,7 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var vibrator: Vibrator
 
-    private lateinit var allLocations: MutableList<AudioLocations>
+    private val dist = Distance()
 
     private val locationPermissionRequest = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -99,7 +99,6 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    allLocations = Distance().getLocations()
 
                     vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     val vibratorManager =
@@ -169,7 +168,7 @@ class MainActivity : ComponentActivity() {
                     //write inside onCreate method
                     handler.postDelayed(runnable,5000)
                     //change message based on url state?
-                    AudioMessage(name = locationText, url = locationUrl)
+                    AudioMessage(name = locationText)
                 }
             }
         }
@@ -182,7 +181,7 @@ class MainActivity : ComponentActivity() {
      * When the URL is filled in, a button is shown to play the audio.
      */
     @Composable
-    fun AudioMessage(name:String?, url:String?){
+    fun AudioMessage(name:String?){
 
         Haptic().vibrate(vibrator, 500)
 
@@ -226,7 +225,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun PreviewAudioMessage(){
         AIinStreetTheme {
-            AudioMessage(name = "Here lies static", url = "")
+            AudioMessage(name = "Here lies static")
         }
     }
 
@@ -235,12 +234,12 @@ class MainActivity : ComponentActivity() {
      * If close to an audio way point, reset the UI variables
      */
     fun playAudio(locationResult: Location) {
-        val dist = Distance()
-        val audio = Distance().distanceTo(locationResult)
+
+        val audio = dist.distanceTo(locationResult)
 
         if (audio) {
-            locationText = dist.locationText (locationResult.latitude, locationResult.longitude, allLocations)
-            locationUrl = dist.locationAudio(locationResult.latitude, locationResult.longitude, allLocations)
+            locationText = dist.locationText (locationResult.latitude, locationResult.longitude)
+            locationUrl = dist.locationAudio(locationResult.latitude, locationResult.longitude)
         }
 
     }
