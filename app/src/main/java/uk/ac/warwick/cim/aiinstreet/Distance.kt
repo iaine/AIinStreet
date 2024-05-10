@@ -28,7 +28,7 @@ class Distance {
                 results
             )
 
-            if (results[0] < 2.5) near = true
+            if (results[0] < 5) near = true
         }
 
         return near
@@ -53,11 +53,14 @@ class Distance {
     }
 
     fun getLocations (): MutableList<AudioLocations> {
+
         val locations: MutableList<AudioLocations> = mutableListOf()
-        locations.add(AudioLocations(52.41033238626815, -1.5210952754423754, "example", "Barras Lane"))
-        locations.add(AudioLocations(52.41108173823987, -1.5231900806341336, "example", "Holyhead Surgery"))
-        locations.add(AudioLocations(52.41186052723431, -1.525158822005133, "example", "Rail Station"))
-        locations.add(AudioLocations(52.41143126082055, -1.5297539855765452, "example", "Rail Station"))
+        locations.add(AudioLocations(52.41033238626, -1.5210952754423, "example", "Barras Lane"))
+        locations.add(AudioLocations(52.41108173823, -1.5231900806341, "example", "Holyhead Surgery"))
+        locations.add(AudioLocations(52.41186052723, -1.525158822005, "example", "Rail Station"))
+        locations.add(AudioLocations(52.41143126082, -1.5297539855765, "example", "All0tments"))
+        locations.add(AudioLocations(51.75487933031, -1.2549123452325, "example", "Weston"))
+        locations.add(AudioLocations(51.74459827237, -1.2294136893110, "example", "Magdalen Road"))
         return locations
     }
 
