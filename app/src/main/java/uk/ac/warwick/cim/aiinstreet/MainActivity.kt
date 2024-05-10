@@ -184,6 +184,7 @@ class MainActivity : ComponentActivity() {
     fun AudioMessage(name:String?){
 
         Haptic().vibrate(vibrator, 500)
+        audioPlayer.playSound()
 
         Spacer(modifier = Modifier.width(8.dp))
 
