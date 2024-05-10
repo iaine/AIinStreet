@@ -43,7 +43,7 @@ class AudioPlayer {
         }
     }
 
-    //Tones sutff
+    //Tones stuff
     fun playSound() {
         val toneGenerator = ToneGenerator(AudioManager.STREAM_ALARM, 100)
         toneGenerator.startTone(ToneGenerator.TONE_DTMF_7, 200)
